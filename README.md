@@ -52,3 +52,17 @@ Nonetheless you can configure it to keep old data by adding this to your config.
   * Laptop1 reports in the morning about the built-in display and an external display --> mr-php stores and displays both
   * The display is broken/stolen/etc.
   * The display remains associated with Laptop1 until you remove Laptop1 from MR
+
+Configuration
+-------------
+Displays module history option
+
+By default this module overrides the information of a client computer
+on each client's report submission.
+If you would like to keep displays information until the display is seen again
+on a different computer use:
+`DISPLAYS_INFO_KEEP_PREVIOUS=TRUE`
+When not configured, or if set to FALSE, the default behaviour applies.
+```
+DISPLAYS_INFO_KEEP_PREVIOUS=FALSE
+```
