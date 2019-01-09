@@ -18,6 +18,6 @@ return [
 	| set show_virtual_displays to FALSE.
 	|
 	*/
-	$conf['keep_previous_displays'] = env('DISPLAYS_INFO_KEEP_PREVIOUS', true),
-	$conf['show_virtual_displays'] = env('SHOW_VIRTUAL_DISPLAYS', true),
+	'keep_previous_displays' => env('DISPLAYS_INFO_KEEP_PREVIOUS', true),
+	'show_virtual_displays' => env('SHOW_VIRTUAL_DISPLAYS', true),
 ];
