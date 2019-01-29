@@ -191,8 +191,8 @@ class Displays_info_model extends \Model
                         $this->save();
                     }
                 } else {
-                    // Only save the display it has a valid native resolution and is not a virtual display
-                    if (array_key_exists('native', $display) && $display['virtual_device'] != 1){
+                    // Only save the display it has a valid native resolution and virtual_device key exists and is not a virtual display
+                    if (array_key_exists('native', $display) && array_key_exists('virtual_device', $display) && $display['virtual_device'] != 1){
                         // Save the data
                         $this->id = '';
                         $this->save();
