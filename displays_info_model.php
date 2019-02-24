@@ -66,7 +66,7 @@ class Displays_info_model extends \Model
      **/
     public function get_count($type)
     {
-        $sql = "SELECT COUNT(CASE WHEN type=? AND AND (virtual_device=0 OR virtual_device IS NULL) THEN 1 END) AS total
+        $sql = "SELECT COUNT(CASE WHEN type=? AND (virtual_device=0 OR virtual_device IS NULL) THEN 1 END) AS total
                     FROM displays
                     LEFT JOIN reportdata USING (serial_number)
                     ".get_machine_group_filter();
