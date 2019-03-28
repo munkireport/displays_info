@@ -8,6 +8,7 @@ import sys
 import os
 import subprocess
 import plistlib
+import platform
 
 sys.path.insert(0, '/usr/local/munki')
 
@@ -206,6 +207,11 @@ def type_get(s):
     else:
         return 1
     
+def getOsVersion():
+    """Returns the minor OS version."""
+    os_version_tuple = platform.mac_ver()[0].split('.')
+    return int(os_version_tuple[1])
+    
 def main():
     """Main"""
     # Create cache dir if it does not exist
@@ -224,7 +230,10 @@ def main():
     info = get_displays_info()
     
     # Read in English localizations from SystemProfiler
-    localization = FoundationPlist.readPlist('/System/Library/SystemProfiler/SPDisplaysReporter.spreporter/Contents/Resources/English.lproj/Localizable.strings')
+    if getOsVersion() > 13:
+        localization = FoundationPlist.readPlist('/System/Library/SystemProfiler/SPDisplaysReporter.spreporter/Contents/Resources/en.lproj/Localizable.strings')
+    else:
+        localization = FoundationPlist.readPlist('/System/Library/SystemProfiler/SPDisplaysReporter.spreporter/Contents/Resources/English.lproj/Localizable.strings')
 
     result = flatten_displays_info(info, localization)
     
