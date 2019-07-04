@@ -2,6 +2,8 @@
 <div id="displays-tab"></div>
 <h2 data-i18n="displays_info.displays"></h2>
 
+<script src="<?=url('module/displays_info/js/format_displays')?>"></script>
+
 <script>
 $(document).on('appReady', function(){
 	$.getJSON(appUrl + '/module/displays_info/get_data/' + serialNumber, function(data){
@@ -45,7 +47,7 @@ $(document).on('appReady', function(){
                            rows = rows + '<tr><th>'+i18n.t('displays_info.'+prop)+'</th><td>'+i18n.t('displays_info.not_supported')+'</td></tr>';
                         }
                         else if(prop == 'vendor'){
-                           rows = rows + '<tr><th>'+i18n.t('displays_info.vendor')+'</th><td>'+(mr.display_vendors[d[prop]] || d[prop])+'</td></tr>';
+                           rows = rows + '<tr><th>'+i18n.t('displays_info.vendor')+'</th><td>'+(display_vendors[d[prop]] || d[prop])+'</td></tr>';
                         }
                         else if(prop == 'manufactured' && moment(d[prop], 'YYYY-W', true).isValid() && d[prop].toLowerCase().indexOf("model") === -1){
                            rows = rows + '<tr><th>'+i18n.t('displays_info.manufactured')+'</th><td>'+'<time title="'+ moment(d[prop], 'YYYY-W').fromNow() + '" </time>' + moment(d[prop], 'YYYY-W').format("MMMM Do, YYYY")+'</td></tr>';
