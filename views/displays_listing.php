@@ -55,7 +55,7 @@ $this->view('listings/default',
     [
       "column" => "displays.timestamp",
       "i18n_header" => "displays_info.detected",
-      "sort" =>"desc",
+      "sort" => "desc",
       "formatter" => "timestampToMoment",
     ],
   ]
