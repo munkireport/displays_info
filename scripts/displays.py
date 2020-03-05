@@ -200,18 +200,13 @@ def to_bool(s):
         return 1
     else:
         return 0
-    
+
 def type_get(s):
     if s == "spdisplays_yes":
         return 0
     else:
         return 1
-    
-def getOsVersion():
-    """Returns the minor OS version."""
-    os_version_tuple = platform.mac_ver()[0].split('.')
-    return int(os_version_tuple[1])
-    
+
 def main():
     """Main"""
     # Create cache dir if it does not exist
@@ -230,10 +225,12 @@ def main():
     info = get_displays_info()
     
     # Read in English localizations from SystemProfiler
-    if getOsVersion() > 13:
+    if os.path.isfile('/System/Library/SystemProfiler/SPDisplaysReporter.spreporter/Contents/Resources/en.lproj/Localizable.strings'):
         localization = FoundationPlist.readPlist('/System/Library/SystemProfiler/SPDisplaysReporter.spreporter/Contents/Resources/en.lproj/Localizable.strings')
-    else:
+    elif os.path.isfile('/System/Library/SystemProfiler/SPDisplaysReporter.spreporter/Contents/Resources/English.lproj/Localizable.strings'):
         localization = FoundationPlist.readPlist('/System/Library/SystemProfiler/SPDisplaysReporter.spreporter/Contents/Resources/English.lproj/Localizable.strings')
+    else:
+        localization = {}
 
     result = flatten_displays_info(info, localization)
     
