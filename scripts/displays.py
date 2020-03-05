@@ -48,8 +48,12 @@ def flatten_displays_info(array, localization):
             elif item == '_spdisplays_display-vendor-id':
                 # 756e6b6e is used to show display is virtual display
                 if obj[item] == "756e6b6e":
-                    display['virtual_device'] = 1    
+                    display['virtual_device'] = 1
                     display['vendor'] = "Virtual Display"
+                elif obj[item] == "6161706c":
+                    # 6161706c is an AirPlay display
+                    display['virtual_device'] = 1
+                    display['vendor'] = obj[item].strip()
                 else:
                     try:
                         display['virtual_device'] = to_bool(obj['_spdisplays_virtualdevice'])
@@ -70,7 +74,7 @@ def flatten_displays_info(array, localization):
                             display['type'] = 1 #External
                     except KeyError, error: # This catches the error for 10.6 where there is no vendor for built-in displays
                         display['type'] = 0 #Internal
-                    
+
             elif item == '_name' and obj[item] is not "spdisplays_displayport_info" and obj[item] is not "spdisplays_display_connector" and not obj[item].startswith('kHW_') and not obj[item].startswith('NVIDIA')  and not obj[item].startswith('AMD') and not obj[item].startswith('ATI') and not obj[item].startswith('Intel'):
                 if obj[item] == "spdisplays_display":
                     display['model'] = "Virtual Display"
