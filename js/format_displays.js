@@ -94,7 +94,7 @@ var display_vendors = {
     "5262": "Toshiba",
     "34a9": "Panasonic",
     "6318": "Panasonic",
-    "5e3": "Flanders Scientific",
+    "5e3": "AOC",
     "30ae": "Lenovo",
     "469": "Asus",
     "6b3": "Asus",
