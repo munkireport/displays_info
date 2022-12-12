@@ -1,4 +1,4 @@
-#!/usr/local/munkireport/munkireport-python2
+#!/usr/local/munkireport/munkireport-python3
 
 """
 Extracts information about the external displays from System Profiler
@@ -23,7 +23,10 @@ def get_displays_info():
                             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     (output, unused_error) = proc.communicate()
     try:
-        plist = plistlib.readPlistFromString(output)
+        try:
+            plist = plistlib.readPlistFromString(output)
+        except AttributeError as e:
+            plist = plistlib.loads(output)
         # system_profiler xml is an array
         sp_dict = plist[0]
         items = sp_dict['_items']
@@ -59,13 +62,13 @@ def flatten_displays_info(array, localization):
                     try:
                         display['virtual_device'] = to_bool(obj['_spdisplays_virtualdevice'])
                         display['vendor'] = obj[item].strip()
-                    except KeyError, error:
+                    except KeyError as error:
                         display['vendor'] = obj[item].strip()
                 
                 # Get Internal/External
                 try:
                     display['type'] = type_get(obj['spdisplays_builtin'])
-                except KeyError, error:
+                except KeyError as error:
                     try:
                         if obj.get('spdisplays_display-serial-number', None):
                             display['type'] = 1 #External
@@ -73,10 +76,10 @@ def flatten_displays_info(array, localization):
                             display['type'] = 0 #Internal
                         else:
                             display['type'] = 1 #External
-                    except KeyError, error: # This catches the error for 10.6 where there is no vendor for built-in displays
+                    except KeyError as error: # This catches the error for 10.6 where there is no vendor for built-in displays
                         display['type'] = 0 #Internal
 
-            elif item == '_name' and obj[item] is not "spdisplays_displayport_info" and obj[item] is not "spdisplays_display_connector" and not obj[item].startswith('kHW_') and not obj[item].startswith('NVIDIA')  and not obj[item].startswith('AMD') and not obj[item].startswith('ATI') and not obj[item].startswith('Intel'):
+            elif item == '_name' and obj[item] != "spdisplays_displayport_info" and obj[item] != "spdisplays_display_connector" and not obj[item].startswith('kHW_') and not obj[item].startswith('NVIDIA')  and not obj[item].startswith('AMD') and not obj[item].startswith('ATI') and not obj[item].startswith('Intel'):
                 if obj[item] == "spdisplays_display":
                     display['model'] = "Virtual Display"
                 else:
@@ -84,7 +87,7 @@ def flatten_displays_info(array, localization):
                     
                 try:
                     display['display_asleep'] = to_bool(obj['spdisplays_asleep'])
-                except KeyError, error:
+                except KeyError as error:
                     display['display_asleep'] = 0
                     
                 # Set inital Retina
@@ -102,29 +105,29 @@ def flatten_displays_info(array, localization):
                 try:
                     try:
                         display['current_resolution'] = localization[obj[item]].strip()
-                    except KeyError, error:
+                    except KeyError as error:
                         display['current_resolution'] = obj[item].strip()
-                except KeyError, error:
+                except KeyError as error:
                     display['current_resolution'] = obj[item].strip()
                     
             elif item == '_spdisplays_resolution':
                 try:
                     try:
                         display['ui_resolution'] = localization[obj[item]].strip()
-                    except KeyError, error:
+                    except KeyError as error:
                         display['ui_resolution'] = obj[item].strip()                  
-                except KeyError, error:
+                except KeyError as error:
                     display['ui_resolution'] = obj[item].strip()
 
             elif item == 'spdisplays_depth':
                 try:
                     display['color_depth'] = localization[obj[item]].strip()
-                except KeyError, error:
+                except KeyError as error:
                     display['color_depth'] = obj[item].strip()
             elif item == 'spdisplays_display_type':
                 try:
                     display['display_type'] = localization[obj[item]].strip()
-                except KeyError, error:
+                except KeyError as error:
                     display['display_type'] = obj[item].strip()
                 # Set Retina 
                 if "etina" in obj[item]:
@@ -136,7 +139,7 @@ def flatten_displays_info(array, localization):
             elif item == 'spdisplays_mirror_status':
                 try:
                     display['mirror_status'] = localization[obj[item]].strip()
-                except KeyError, error:
+                except KeyError as error:
                     display['mirror_status'] = obj[item].strip()               
             elif item == 'spdisplays_online':
                 display['online'] = to_bool(obj[item])
@@ -159,7 +162,7 @@ def flatten_displays_info(array, localization):
             elif item == 'spdisplays_connection_type':
                 try:
                     display['connection_type'] = localization[obj[item]].strip()
-                except KeyError, error:
+                except KeyError as error:
                     display['connection_type'] = obj[item].strip()                    
             elif item == 'spdisplays_displayport_DPCD_version':
                 display['dp_dpcd_version'] = obj[item].strip()
@@ -180,7 +183,7 @@ def flatten_displays_info(array, localization):
             elif item == 'spdisplays_dynamic_range':
                 try:
                     display['dynamic_range'] = localization[obj[item]].strip()
-                except KeyError, error:
+                except KeyError as error:
                     display['dynamic_range'] = obj[item] .strip()
             elif item == 'spdisplays_displayport_adapter_firmware_version':
                 display['dp_adapter_firmware_version'] = obj[item].strip()
@@ -214,16 +217,6 @@ def type_get(s):
 
 def main():
     """Main"""
-    # Create cache dir if it does not exist
-    cachedir = '%s/cache' % os.path.dirname(os.path.realpath(__file__))
-    if not os.path.exists(cachedir):
-        os.makedirs(cachedir)
-
-    # Skip manual check
-    if len(sys.argv) > 1:
-        if sys.argv[1] == 'manualcheck':
-            print 'Manual check: skipping'
-            exit(0)
 
     # Get results
     result = dict()
@@ -240,8 +233,13 @@ def main():
     result = flatten_displays_info(info, localization)
     
     # Write displays results to cache
+    cachedir = '%s/cache' % os.path.dirname(os.path.realpath(__file__))
     output_plist = os.path.join(cachedir, 'displays.plist')
-    plistlib.writePlist(result, output_plist)
+    try:
+        plistlib.writePlist(result, output_plist)
+    except:
+        with open(output_plist, 'wb') as fp:
+            plistlib.dump(result, fp, fmt=plistlib.FMT_XML)
     #print plistlib.writePlistToString(result)
     
 
