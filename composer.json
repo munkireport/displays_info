@@ -1,8 +1,5 @@
 {
     "name": "munkireport/displays_info",
     "description": "Displays_info module for munkireport.",
-    "license": "MIT",
-    "require": {
-        "php":"^7.0"
-    }
+    "license": "MIT"
 }
