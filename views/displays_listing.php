@@ -58,5 +58,13 @@ $this->view('listings/default',
       "sort" => "desc",
       "formatter" => "timestampToMoment",
     ],
+    [
+      "column" => "displays.model_identifier",
+      "i18n_header" => "displays_info.model_identifier",
+    ],
+    [
+      "column" => "displays.os_version",
+      "i18n_header" => "displays_info.os_version",
+    ],
   ]
 ]);

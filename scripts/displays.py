@@ -64,7 +64,7 @@ def flatten_displays_info(array, localization):
                         display['vendor'] = obj[item].strip()
                     except KeyError as error:
                         display['vendor'] = obj[item].strip()
-                
+
                 # Get Internal/External
                 try:
                     display['type'] = type_get(obj['spdisplays_builtin'])
@@ -84,23 +84,23 @@ def flatten_displays_info(array, localization):
                     display['model'] = "Virtual Display"
                 else:
                     display['model'] = obj[item].strip()
-                    
+
                 try:
                     display['display_asleep'] = to_bool(obj['spdisplays_asleep'])
                 except KeyError as error:
                     display['display_asleep'] = 0
-                    
+
                 # Set inital Retina
                 display['retina'] = 0
                 
             elif item == '_spdisplays_pixels':
                 display['native'] = obj[item].strip()
-                
+
             elif item == 'spdisplays_pixelresolution':
                 # Set Retina 
                 if "etina" in obj[item]:
                     display['retina'] = 1
-                    
+
             elif item == 'spdisplays_resolution':
                 try:
                     try:
@@ -109,13 +109,13 @@ def flatten_displays_info(array, localization):
                         display['current_resolution'] = obj[item].strip()
                 except KeyError as error:
                     display['current_resolution'] = obj[item].strip()
-                    
+
             elif item == '_spdisplays_resolution':
                 try:
                     try:
                         display['ui_resolution'] = localization[obj[item]].strip()
                     except KeyError as error:
-                        display['ui_resolution'] = obj[item].strip()                  
+                        display['ui_resolution'] = obj[item].strip()
                 except KeyError as error:
                     display['ui_resolution'] = obj[item].strip()
 
@@ -140,7 +140,7 @@ def flatten_displays_info(array, localization):
                 try:
                     display['mirror_status'] = localization[obj[item]].strip()
                 except KeyError as error:
-                    display['mirror_status'] = obj[item].strip()               
+                    display['mirror_status'] = obj[item].strip()
             elif item == 'spdisplays_online':
                 display['online'] = to_bool(obj[item])
             elif item == 'spdisplays_interlaced':
@@ -187,21 +187,56 @@ def flatten_displays_info(array, localization):
                     display['dynamic_range'] = obj[item] .strip()
             elif item == 'spdisplays_displayport_adapter_firmware_version':
                 display['dp_adapter_firmware_version'] = obj[item].strip()
-                
+
             elif item == '_spdisplays_display-week':
                 # Manufactured section
                 # from https://en.wikipedia.org/wiki/Extended_Display_Identification_Data#EDID_1.4_data_format
                 # If week is 0 or 255, year is the model year.
                 if int(obj['_spdisplays_display-week']) == 255 or int(obj['_spdisplays_display-week']) == 0:
-                    display['manufactured'] = str(obj['_spdisplays_display-year']) + ' Model'
+                    if str(obj['_spdisplays_display-year']) != "0":
+                        display['manufactured'] = str(obj['_spdisplays_display-year']) + ' Model'
                 else:
                     display['manufactured'] = obj['_spdisplays_display-year'] + '-' + obj['_spdisplays_display-week']
 
+        # Check for Apple Studio Display
+        if 'model' in display and display['model'] == "Studio Display" and 'vendor' in display and display['vendor'] == "610":
+            try:
+                display.update(get_Studio_Display_iBridge_data(display['display_serial']))
+            except Exception:
+                pass
+
         if display:
             out.append(display)
-            
+
     return out
-    
+
+def get_Studio_Display_iBridge_data(display_serial_number):
+    cmd = ['/usr/libexec/remotectl', 'dumpstate']
+    proc = subprocess.Popen(cmd, shell=False, bufsize=-1,
+                            stdin=subprocess.PIPE,
+                            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    (output, unused_error) = proc.communicate()
+
+    out = {}
+
+    for ibridge in output.decode().split("UUID: "):
+
+        # We need to get only the Studio Display's iBridge
+        if "DeviceClass => AppleDisplay" in ibridge and display_serial_number in ibridge:
+
+            for item in ibridge.split('\n'):
+                if 'HWModel => ' in item:
+                    out['hardware_model'] = item.replace('HWModel => ', "").strip()
+                elif 'RegionInfo => ' in item:
+                    out['region_info'] = item.replace('RegionInfo => ', "").strip()
+                elif 'OSVersion => ' in item:
+                    out['os_version'] = item.replace('OSVersion => ', "").strip()
+                elif 'Product Type: ' in item:
+                    out['model_identifier'] = item.replace('Product Type: ', "").strip()
+                elif 'ModelNumber => ' in item:
+                    out['model_number'] = item.replace('ModelNumber => ', "").strip()
+
+    return out
 
 def to_bool(s):
     if s == True or s == "spdisplays_yes" or s == "spdisplays_on" or s == 'spdisplays_supported' or s == 'spdisplays_supported' or s == 'spdisplays_displayport_hdcp_capable':
@@ -221,7 +256,7 @@ def main():
     # Get results
     result = dict()
     info = get_displays_info()
-    
+
     # Read in English localizations from SystemProfiler
     if os.path.isfile('/System/Library/SystemProfiler/SPDisplaysReporter.spreporter/Contents/Resources/en.lproj/Localizable.strings'):
         localization = FoundationPlist.readPlist('/System/Library/SystemProfiler/SPDisplaysReporter.spreporter/Contents/Resources/en.lproj/Localizable.strings')
@@ -239,7 +274,7 @@ def main():
         localization = {}
 
     result = flatten_displays_info(info, localization)
-    
+
     # Write displays results to cache
     cachedir = '%s/cache' % os.path.dirname(os.path.realpath(__file__))
     output_plist = os.path.join(cachedir, 'displays.plist')

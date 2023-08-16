@@ -45,7 +45,7 @@ class Displays_info_controller extends Module_controller
         
         $queryobj = new Displays_info_model();
         
-        $sql = "SELECT vendor, type, display_type, display_serial, manufactured, native, ui_resolution, current_resolution, color_depth, connection_type, online, main_display, display_asleep, retina, mirror, mirror_status, interlaced, rotation_supported, television, ambient_brightness, automatic_graphics_switching, virtual_device, edr_supported, edr_enabled, edr_limit,  dp_dpcd_version, dp_current_bandwidth, dp_current_lanes, dp_current_spread, dp_hdcp_capability, dp_max_bandwidth, dp_max_lanes, dp_max_spread, dynamic_range, dp_adapter_firmware_version, timestamp, model
+        $sql = "SELECT vendor, type, display_type, display_serial, manufactured, native, ui_resolution, current_resolution, color_depth, connection_type, online, main_display, display_asleep, retina, mirror, mirror_status, interlaced, rotation_supported, television, ambient_brightness, automatic_graphics_switching, virtual_device, edr_supported, edr_enabled, edr_limit,  dp_dpcd_version, dp_current_bandwidth, dp_current_lanes, dp_current_spread, dp_hdcp_capability, dp_max_bandwidth, dp_max_lanes, dp_max_spread, dynamic_range, dp_adapter_firmware_version, timestamp, model, model_number, model_identifier, os_version, region_info, hardware_model 
                 FROM displays 
                 WHERE serial_number = '$serial'";
         

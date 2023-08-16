@@ -56,6 +56,11 @@ This is the table of values for 'displays':
 * virtual_device (boolean) Is virtual display device
 * dynamic_range (string) Dynamic range currently in use
 * dp_adapter_firmware_version (string) Firmware version of DisplayPort adapter
+* hardware_model (string) Studio Display hardware model
+* region_info (string) Studio Display region
+* os_version (string) Studio Display OS version
+* model_identifier (string) Studio Display model ID
+* model_number (string) Studio Display model number
 
 Remarks
 ---
@@ -64,7 +69,7 @@ The default configuration of the module is to delete any previous display inform
 
 Nonetheless you can configure it to keep old data by adding this to your config.php `$conf['keep_previous_displays'] = TRUE;`. Some examples of what to expect in each case:
 
-### Example of default behaviour:
+### Example of default behavior:
 
 * Scenario 1:
   * Laptop1 reports in the morning about the built-in display and an external display --> mr-php stores and displays both

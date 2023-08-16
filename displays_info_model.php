@@ -47,6 +47,11 @@ class Displays_info_model extends \Model
         $this->rs['virtual_device'] = 0; // Boolean
         $this->rs['dynamic_range'] = '';
         $this->rs['dp_adapter_firmware_version'] = '';
+        $this->rs['hardware_model'] = '';
+        $this->rs['region_info'] = '';
+        $this->rs['os_version'] = '';
+        $this->rs['model_identifier'] = '';
+        $this->rs['model_number'] = '';
 
         // Add local config
         configAppendFile(__DIR__ . '/config.php');
@@ -57,7 +62,7 @@ class Displays_info_model extends \Model
 
         $this->serial = $serial;
     } // End construct
-    
+
     /**
      * Get count of displays
      *
@@ -88,7 +93,7 @@ class Displays_info_model extends \Model
         if (! $data) {
             print_r("Error Processing Displays Info Module Request: No data found");
         } else if (substr( $data, 0, 30 ) != '<?xml version="1.0" encoding="' ) { // Else if old style txt format, process with old txt based handler
-            
+
             // Translate array used to match data to db fields
             $translate = array('Type = ' => 'type',
                               'Serial = ' => 'display_serial',
@@ -103,7 +108,7 @@ class Displays_info_model extends \Model
                 $this->deleteWhere('serial_number=?', $this->serial_number);
                 $this->display_serial = null; // Get rid of any serial number that was left in memory
             }
-            
+
             // Parse data
             foreach (explode("\n", $data) as $line) {
               // Translate standard entries
@@ -139,25 +144,28 @@ class Displays_info_model extends \Model
                 // Timestamp added by the server
                 $this->timestamp = time();
             } // End foreach explode lines
-            
+
         } else { // Else process with new XML handler
-            
+
             // If we didn't specify in the config that we like history then
             // We nuke any data we had with this computer's serial number
             if (! conf('keep_previous_displays')) {
                 $this->deleteWhere('serial_number=?', $this->serial_number);
                 $this->display_serial = null; // Get rid of any serial number that was left in memory
             }
-            
+
             // Process incoming displays.plist
             $parser = new CFPropertyList();
             $parser->parse($data, CFPropertyList::FORMAT_XML);
             $plist = $parser->toArray();
-            
+
+            // Delete internal displays, they'll regenerate like hydra heads
+            $this->deleteWhere('serial_number=? AND type=0', array($this->serial_number));
+
             foreach ($plist as $display) {
-                
+
                 // Process each display
-                foreach (array('type','display_serial','vendor','model','manufactured','native','ui_resolution','current_resolution','color_depth','display_type','main_display','mirror','mirror_status','online','interlaced','rotation_supported','television','display_asleep','ambient_brightness','automatic_graphics_switching','retina','edr_enabled','edr_limit','edr_supported','connection_type','dp_dpcd_version','dp_current_bandwidth','dp_current_lanes','dp_current_spread','dp_hdcp_capability','dp_max_bandwidth','dp_max_lanes','dp_max_spread','virtual_device','dynamic_range','dp_adapter_firmware_version') as $item) {
+                foreach (array('type','display_serial','vendor','model','manufactured','native','ui_resolution','current_resolution','color_depth','display_type','main_display','mirror','mirror_status','online','interlaced','rotation_supported','television','display_asleep','ambient_brightness','automatic_graphics_switching','retina','edr_enabled','edr_limit','edr_supported','connection_type','dp_dpcd_version','dp_current_bandwidth','dp_current_lanes','dp_current_spread','dp_hdcp_capability','dp_max_bandwidth','dp_max_lanes','dp_max_spread','virtual_device','dynamic_range','dp_adapter_firmware_version','hardware_model','region_info','os_version','model_identifier','model_number') as $item) {
                     // If key does not exist in $display, null it
                     if ( ! array_key_exists($item, $display) && $item == 'display_serial') {
                         // For legacy purposes, display serial number cannot be null
@@ -169,21 +177,21 @@ class Displays_info_model extends \Model
                         $this->$item = $display[$item];
                     }
                 }
-                
+
                 // If we have not nuked the records, do a selective delete
                 if (conf('keep_previous_displays')) {
                     // Selectively delete display by matching display serial number, vendor, and native resolution
                     $this->deleteWhere('serial_number=? AND display_serial=? AND native=? AND vendor=?', array($this->serial_number, $this->display_serial, $this->native, $this->vendor));
                 }
-                
+
                 // Timestamp added by the server
                 $this->timestamp = time();
-                
+
                 // Check if we are to save virtual displays, default is yes
                 if (conf('show_virtual_displays')) {
                     // Delete previous virtual displays if we are to keep them, because they can easily change and duplicate and we only want the latest ones
                     $this->deleteWhere('serial_number=? AND virtual_device=?', array($this->serial_number, 1));
-                    
+
                     // Only save the display it has a valid native resolution
                     if (array_key_exists('native', $display)){
                         // Save the data

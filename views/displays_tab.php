@@ -25,7 +25,7 @@ $(document).on('appReady', function(){
                 for (var prop in d){
                     // Skip skipThese
                     if(skipThese.indexOf(prop) == -1){
-                        if (d[prop] == null || d[prop] == "" || d[prop] == "n/a"){
+                        if ((d[prop] == null || d[prop] == "" || d[prop] == "n/a") && d[prop] !== 0){
                            // Do nothing for the nulls to blank them
                         } 
                         else if(prop == 'type' && d[prop] == 1){

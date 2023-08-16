@@ -107,5 +107,10 @@ var display_vendors = {
     "34a4": "Medion",
     "1ab3": "Fujitsu",
     "2db2": "Kramer Electronics",
-    "6161706c": "AirPlay"
+    "6161706c": "AirPlay",
+    "ca9": "Crestron",
+    "6474": "InnoView",
+    "220e": "HP",
+    "25d8": "KanexPro",
+    "859": "Insignia"
 }
