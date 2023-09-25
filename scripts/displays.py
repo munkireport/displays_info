@@ -9,6 +9,7 @@ import os
 import subprocess
 import plistlib
 import platform
+import datetime
 
 sys.path.insert(0, '/usr/local/munki')
 sys.path.insert(0, '/usr/local/munkireport')
@@ -47,7 +48,7 @@ def flatten_displays_info(array, localization):
             elif item == '_spdisplays_displayport_device':
                 out = out + flatten_displays_info(obj['_spdisplays_displayport_device'], localization)
 
-            elif item == 'spdisplays_display-serial-number':
+            elif item == 'spdisplays_display-serial-number' or item == "_spdisplays_display-serial-number":
                 display['display_serial'] = obj[item]
             elif item == '_spdisplays_display-vendor-id':
                 # 756e6b6e is used to show display is virtual display
@@ -196,7 +197,7 @@ def flatten_displays_info(array, localization):
                     if str(obj['_spdisplays_display-year']) != "0":
                         display['manufactured'] = str(obj['_spdisplays_display-year']) + ' Model'
                 else:
-                    display['manufactured'] = obj['_spdisplays_display-year'] + '-' + obj['_spdisplays_display-week']
+                    display['manufactured'] = datetime.datetime.strptime(obj['_spdisplays_display-year'] + '-' + obj['_spdisplays_display-week'] + "-" + str(1) , "%Y-%W-%w")
 
         # Check for Apple Studio Display
         if 'model' in display and display['model'] == "Studio Display" and 'vendor' in display and display['vendor'] == "610":
