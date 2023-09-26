@@ -197,7 +197,8 @@ def flatten_displays_info(array, localization):
                     if str(obj['_spdisplays_display-year']) != "0":
                         display['manufactured'] = str(obj['_spdisplays_display-year']) + ' Model'
                 else:
-                    display['manufactured'] = datetime.datetime.strptime(obj['_spdisplays_display-year'] + '-' + obj['_spdisplays_display-week'] + "-" + str(1) , "%Y-%W-%w")
+                    mfg_date = datetime.datetime.strptime(obj['_spdisplays_display-year'] + '-' + obj['_spdisplays_display-week'] + "-" + str(1) , "%Y-%W-%w")
+                    display['manufactured'] = str(mfg_date.year) + "-" + str(mfg_date.month)
 
         # Check for Apple Studio Display
         if 'model' in display and display['model'] == "Studio Display" and 'vendor' in display and display['vendor'] == "610":
