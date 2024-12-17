@@ -111,7 +111,7 @@ var display_vendors = {
     "20e3": "CRUA",
     "4193": "Kwumsy",
     "a8c": "Vivo",
-    "10cc": "Vivo,
+    "10cc": "Vivo",
     "4e14": "Sceptre",
     "2264": "HannsG",
     "1358": "KYY",
