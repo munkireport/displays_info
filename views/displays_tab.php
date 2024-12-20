@@ -1,5 +1,11 @@
-
 <div id="displays-tab"></div>
+
+<div id="lister" style="font-size: large; float: right;">
+    <a href="/show/listing/displays_info/displays_info" title="List">
+        <i class="btn btn-default tab-btn fa fa-list"></i>
+    </a>
+</div>
+
 <h2 data-i18n="displays_info.displays"></h2>
 
 <script src="<?=url('module/displays_info/js/format_displays')?>"></script>
