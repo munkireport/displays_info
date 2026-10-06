@@ -34,7 +34,7 @@ class Displays_info_controller extends Module_controller
     public function get_data($serial = '')
     {
         // Remove non-serial number characters
-        $serial = preg_replace("/[^A-Za-z0-9_\-]]/", '', $serial);
+        $serial = preg_replace("/[^A-Za-z0-9_\-]/", '', $serial);
 
         $obj = new View();
 
